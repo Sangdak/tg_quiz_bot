@@ -1,19 +1,10 @@
 import json
-from pprint import pprint
 
 
-def read_txt_file(filename: str, filepath: str, encode: str = 'KOI8-R') -> str:
-    file = f'{filepath}/{filename}'
-    with open(file, 'r', encoding=encode) as data:
-        file_contents = data.read()
-        return file_contents
-
-
-def create_json_quiz_package(filename: str, filepath: str, data: dict, encode: str = 'utf-8') -> None:
-    filename = filename.split('.')[0]
-    file = f'{filepath}/{filename}.json'
-    with open(file, 'w', encoding=encode) as output_file:
-        json.dump(data, output_file)
+def convert_package(filename: str, filepath: str = 'quiz_questions_packages') -> None:
+    contents = read_txt_file(filename, filepath)
+    package_data = convert_txt_to_dict(contents)
+    create_json_quiz_package(filename, filepath, package_data)
 
 
 def convert_txt_to_dict(data: str) -> dict:
@@ -30,6 +21,11 @@ def convert_txt_to_dict(data: str) -> dict:
         'Ответ:': 'answer',
         'Автор:': 'author',
         'Источник:': 'source',
+        'Зачет:': 'setoff',
+        'Редактор:': 'editor',
+        'Инфо:': 'info',
+        'URL:': 'url',
+        'Вид:': 'type',
         'extra_info_block': True,
     }
 
@@ -53,18 +49,22 @@ def convert_txt_to_dict(data: str) -> dict:
                     quiz_package[key_names[title]] = text
                 else:
                     quiz_package['questions'][question_number][key_names[title]] = text
-
     return quiz_package
 
 
-def main():
-    filepath = './quiz-questions'
-    filename = '1vs1200.txt'
+def create_json_quiz_package(filename: str, filepath: str, data: dict) -> None:
+    filename = filename.split('.')[0]
+    file = f'{filepath}/json/{filename}.json'
+    with open(file, 'w') as output_file:
+        json.dump(data, output_file)
 
-    contents = read_txt_file(filename, filepath)
-    package_data = convert_txt_to_dict(contents)
-    create_json_quiz_package(filename, filepath, package_data)
+
+def read_txt_file(filename: str, filepath: str, encode: str = 'koi8-r') -> str:
+    file = f'{filepath}/{filename}'
+    with open(file, 'r', encoding=encode) as data:
+        file_contents = data.read()
+        return file_contents
 
 
 if __name__ == '__main__':
-    main()
+    convert_package()
