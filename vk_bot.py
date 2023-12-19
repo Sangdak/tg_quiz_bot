@@ -1,4 +1,3 @@
-import argparse
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -52,8 +51,6 @@ def start(vk_api, event):
 def new_question(vk_api, event, redis_connection):
     question_set = get_random_question()
 
-    print(question_set)
-
     question = question_set['question']
     answer = question_set['answer']
     comment = question_set['comment']
@@ -64,7 +61,7 @@ def new_question(vk_api, event, redis_connection):
 
     vk_api.messages.send(
         user_id=event.user_id,
-        message=question,
+        message=redis_connection.get('question'),
         random_id=random.randint(1, 1000),
         keyboard=continue_keyboard(),
     )
@@ -130,8 +127,6 @@ def main():
                         answer = redis_connection.get('answer').decode("utf-8")
                         answer_short, answer_continue = answer.split('.', maxsplit=1)
                         table = str.maketrans("", "", string.punctuation)
-
-                        print('words: ', answer_short)
 
                         if event.text.translate(table).lower() in answer_short.translate(table).lower():
                             vk_api.messages.send(
